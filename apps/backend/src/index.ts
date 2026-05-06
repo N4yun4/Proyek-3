@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { sensorRoutes } from "./routes/sensor";
 import { exportRoutes } from "./routes/export";
+import { aiRoutes } from "./routes/ai";
 
 const app = new Elysia()
   .use(
@@ -11,6 +12,7 @@ const app = new Elysia()
   )
   .use(sensorRoutes)
   .use(exportRoutes)
+  .use(aiRoutes)
   .get("/health", () => ({ status: "ok" }))
   .listen(Number(process.env.PORT ?? 3000));
 
