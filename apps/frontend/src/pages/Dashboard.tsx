@@ -1,27 +1,16 @@
-import { useLiveSensor } from "../hooks/useLiveSensor";
-import { useTheme } from "../hooks/useTheme";
+import { useSensor } from "../context/SensorContext";
 import { SensorCard } from "../components/SensorCard";
 import { TemperatureChart } from "../components/TemperatureChart";
 import { HistoryTable } from "../components/HistoryTable";
 import { AIAnalysis } from "../components/AIAnalysis";
 import { ExportButton } from "../components/ExportButton";
-import { ThemeToggle } from "../components/ThemeToggle";
-import type { ConnectionStatus } from "../types/sensor";
 
-const statusCfg: Record<ConnectionStatus, { label: string; color: string; dot: string; pulse: boolean }> = {
-  connecting:   { label: "Menghubungkan",  color: "#F5A623", dot: "#F5A623", pulse: true  },
-  connected:    { label: "Terhubung",       color: "#5BAD7F", dot: "#5BAD7F", pulse: false },
-  disconnected: { label: "Terputus",        color: "#E85454", dot: "#E85454", pulse: true  },
-};
-
-/* ── Inline SVG icons (no emoji, cleaner rendering) ── */
 function IconTemp() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
       <path d="M9 2.5v7.2" stroke="#4A8FE7" strokeWidth="1.5" strokeLinecap="round"/>
       <circle cx="9" cy="13" r="2.5" fill="#4A8FE7" fillOpacity="0.2" stroke="#4A8FE7" strokeWidth="1.4"/>
-      <path d="M7 5h4" stroke="#4A8FE7" strokeWidth="1.2" strokeLinecap="round" opacity="0.5"/>
-      <path d="M7 7.5h4" stroke="#4A8FE7" strokeWidth="1.2" strokeLinecap="round" opacity="0.5"/>
+      <path d="M7 5h4M7 7.5h4" stroke="#4A8FE7" strokeWidth="1.2" strokeLinecap="round" opacity="0.5"/>
     </svg>
   );
 }
@@ -46,141 +35,56 @@ function IconPeople() {
 }
 
 export function Dashboard() {
-  const { sensorData, status } = useLiveSensor();
-  const { theme, toggleTheme } = useTheme();
-  const conn = statusCfg[status];
+  const { sensorData } = useSensor();
 
   return (
-    <div className="sh-bg" style={{ minHeight: "100vh", color: "var(--text)" }}>
-
-      {/* ── Header ─────────────────────────────────────────── */}
-      <header
-        style={{
-          background: "var(--surface)",
-          borderBottom: "1px solid var(--border)",
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-        }}
-      >
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          {/* Brand */}
-          <div>
-            <h1
-              className="sh-display"
-              style={{ fontSize: "1.5rem" }}
-            >
-              Home Monitor
-            </h1>
-            <p
-              className="sh-label mt-0.5"
-              style={{ fontSize: "0.62rem" }}
-            >
-              Pemantauan Kondisi Ruangan · Real-Time
-            </p>
-          </div>
-
-          {/* Status + Toggle */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div style={{ position: "relative", width: "8px", height: "8px", flexShrink: 0 }}>
-                <span
-                  style={{
-                    display: "block",
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    background: conn.dot,
-                  }}
-                />
-                {conn.pulse && (
-                  <span className="pulse-ring" style={{ color: conn.dot }} />
-                )}
-              </div>
-              <span
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "0.75rem",
-                  fontWeight: 500,
-                  color: conn.color,
-                }}
-              >
-                {conn.label}
-              </span>
-            </div>
-
-            <div
-              style={{
-                width: "1px",
-                height: "18px",
-                background: "var(--border-hi)",
-                flexShrink: 0,
-              }}
-            />
-
-            <ThemeToggle theme={theme} onToggle={toggleTheme} />
-          </div>
+    <main className="max-w-6xl mx-auto px-6 py-7 space-y-5">
+      {/* Sensor cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="fade-up fade-up-1">
+          <SensorCard
+            label="Suhu Ruangan"
+            value={sensorData?.suhu ?? null}
+            unit="°C"
+            icon={<IconTemp />}
+            color="blue"
+          />
         </div>
-      </header>
-
-      {/* ── Main ───────────────────────────────────────────── */}
-      <main className="max-w-6xl mx-auto px-6 py-7 space-y-5">
-
-        {/* Sensor cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="fade-up fade-up-1">
-            <SensorCard
-              label="Suhu Ruangan"
-              value={sensorData?.suhu ?? null}
-              unit="°C"
-              icon={<IconTemp />}
-              color="blue"
-            />
-          </div>
-          <div className="fade-up fade-up-2">
-            <SensorCard
-              label="Kelembapan"
-              value={sensorData?.kelembapan ?? null}
-              unit="%"
-              icon={<IconHumidity />}
-              color="green"
-            />
-          </div>
-          <div className="fade-up fade-up-3">
-            <SensorCard
-              label="Pengunjung Hari Ini"
-              value={sensorData?.orang_hari_ini ?? null}
-              unit="orang"
-              icon={<IconPeople />}
-              color="amber"
-            />
-          </div>
+        <div className="fade-up fade-up-2">
+          <SensorCard
+            label="Kelembapan"
+            value={sensorData?.kelembapan ?? null}
+            unit="%"
+            icon={<IconHumidity />}
+            color="green"
+          />
         </div>
-
-        {/* Chart + Sidebar */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-          {/* Chart — 2 cols */}
-          <div className="lg:col-span-2 fade-up fade-up-4">
-            <TemperatureChart sensorData={sensorData} />
-          </div>
-
-          {/* Sidebar — 1 col */}
-          <div className="flex flex-col gap-4 fade-up fade-up-5">
-            <AIAnalysis sensorData={sensorData} />
-            <ExportButton filter="7d" />
-            <HistoryTable />
-          </div>
+        <div className="fade-up fade-up-3">
+          <SensorCard
+            label="Pengunjung Hari Ini"
+            value={sensorData?.orang_hari_ini ?? null}
+            unit="orang"
+            icon={<IconPeople />}
+            color="amber"
+          />
         </div>
+      </div>
 
-        {/* Footer */}
-        <p
-          className="text-center sh-label pb-3"
-          style={{ fontSize: "0.6rem" }}
-        >
-          Home Monitor · IoT Room Monitoring · POLNES TRK 6C 2025
-        </p>
-      </main>
-    </div>
+      {/* Chart + Sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 fade-up fade-up-4">
+          <TemperatureChart sensorData={sensorData} />
+        </div>
+        <div className="flex flex-col gap-4 fade-up fade-up-5">
+          <AIAnalysis sensorData={sensorData} />
+          <ExportButton filter="7d" />
+          <HistoryTable />
+        </div>
+      </div>
+
+      <p className="text-center sh-label pb-3" style={{ fontSize: "0.6rem" }}>
+        Home Monitor · IoT Room Monitoring · POLNES TRK 6C 2025
+      </p>
+    </main>
   );
 }
