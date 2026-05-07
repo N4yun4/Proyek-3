@@ -1,15 +1,7 @@
 import { useState } from "react";
 import { downloadCSV } from "../api/export";
+import { filterToDates } from "../utils/dateUtils";
 import type { HistoryFilter } from "../types/sensor";
-
-function filterToDates(filter: HistoryFilter): { from?: string; to?: string } {
-  if (filter === "all") return {};
-  const today = new Date();
-  const to = today.toISOString().slice(0, 10);
-  const from = new Date(today);
-  from.setDate(from.getDate() - (filter === "7d" ? 7 : 30));
-  return { from: from.toISOString().slice(0, 10), to };
-}
 
 interface ExportButtonProps {
   filter?: HistoryFilter;
@@ -59,20 +51,13 @@ export function ExportButton({ filter = "all" }: ExportButtonProps) {
           </>
         )}
       </button>
-
       {status === "empty" && (
-        <p
-          className="mt-1.5 text-center sh-label"
-          style={{ fontSize: "0.62rem", color: "var(--amber)" }}
-        >
+        <p className="mt-1.5 text-center sh-label" style={{ fontSize: "0.62rem", color: "var(--amber)" }}>
           Tidak ada data di rentang ini
         </p>
       )}
       {status === "error" && (
-        <p
-          className="mt-1.5 text-center sh-label"
-          style={{ fontSize: "0.62rem", color: "var(--red)" }}
-        >
+        <p className="mt-1.5 text-center sh-label" style={{ fontSize: "0.62rem", color: "var(--red)" }}>
           Export gagal, coba lagi
         </p>
       )}
