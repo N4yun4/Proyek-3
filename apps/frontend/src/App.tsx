@@ -1,7 +1,5 @@
+import { Dashboard } from "./pages/Dashboard";
+
 export default function App() {
-  return (
-    <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
-      <p className="text-xl">Monitoring App — setup OK</p>
-    </div>
-  );
+  return <Dashboard />;
 }
