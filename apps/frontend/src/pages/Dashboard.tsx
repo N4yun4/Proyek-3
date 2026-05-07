@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import { useLiveSensor } from "../hooks/useLiveSensor";
 import { useTheme } from "../hooks/useTheme";
 import { SensorCard } from "../components/SensorCard";
@@ -9,82 +8,181 @@ import { ExportButton } from "../components/ExportButton";
 import { ThemeToggle } from "../components/ThemeToggle";
 import type { ConnectionStatus } from "../types/sensor";
 
-const statusConfig: Record<ConnectionStatus, { label: string; color: string }> = {
-  connecting: { label: "Menghubungkan...", color: "text-yellow-400" },
-  connected: { label: "Terhubung", color: "text-emerald-400" },
-  disconnected: { label: "Reconnecting...", color: "text-red-400" },
+const statusCfg: Record<ConnectionStatus, { label: string; color: string; dotColor: string; pulse: boolean }> = {
+  connecting:   { label: "MENGHUBUNGKAN",  color: "#fbbf24", dotColor: "#fbbf24", pulse: true  },
+  connected:    { label: "TERHUBUNG",       color: "#34d399", dotColor: "#34d399", pulse: false },
+  disconnected: { label: "RECONNECTING",   color: "#f87171", dotColor: "#f87171", pulse: true  },
 };
 
 export function Dashboard() {
   const { sensorData, status } = useLiveSensor();
   const { theme, toggleTheme } = useTheme();
-  const conn = statusConfig[status];
+  const conn = statusCfg[status];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-200">
-      {/* Header */}
-      <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-4 shadow-sm">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold">Monitoring Ruangan IoT</h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              Sistem Pemantauan Kondisi Ruangan Real-Time
-            </p>
-          </div>
+    <div className="min-h-screen orbital-bg scanlines" style={{ color: "var(--text)" }}>
+
+      {/* ── Header ───────────────────────────────────────────── */}
+      <header
+        style={{
+          borderBottom: "1px solid var(--border)",
+          background: "rgba(7,13,28,0.85)",
+          backdropFilter: "blur(12px)",
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
+        }}
+      >
+        <div
+          className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between"
+        >
+          {/* Brand */}
           <div className="flex items-center gap-3">
-            <span className={clsx("text-xs font-medium flex items-center gap-1.5", conn.color)}>
-              <span className={clsx("w-2 h-2 rounded-full inline-block", {
-                "bg-yellow-400 animate-pulse": status === "connecting",
-                "bg-emerald-400": status === "connected",
-                "bg-red-400 animate-pulse": status === "disconnected",
-              })} />
-              {conn.label}
-            </span>
+            {/* Logo mark */}
+            <div
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "8px",
+                background: "linear-gradient(135deg, rgba(56,139,253,0.2), rgba(34,211,238,0.1))",
+                border: "1px solid rgba(56,139,253,0.35)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="3" stroke="#388bfd" strokeWidth="1" />
+                <circle cx="8" cy="8" r="6.5" stroke="#388bfd" strokeWidth="0.6" strokeDasharray="2 2" />
+                <path d="M8 1.5V4M8 12v2.5M1.5 8H4M12 8h2.5" stroke="#22d3ee" strokeWidth="0.8" strokeLinecap="round" />
+              </svg>
+            </div>
+
+            <div>
+              <h1
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  color: "#93c5fd",
+                  letterSpacing: "0.12em",
+                  lineHeight: 1,
+                }}
+              >
+                ORBITAL
+              </h1>
+              <p
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "0.6rem",
+                  color: "var(--text-2)",
+                  letterSpacing: "0.1em",
+                  marginTop: "2px",
+                  textTransform: "uppercase",
+                }}
+              >
+                Monitoring Ruangan IoT
+              </p>
+            </div>
+          </div>
+
+          {/* Right controls */}
+          <div className="flex items-center gap-4">
+            {/* Connection status */}
+            <div className="flex items-center gap-2">
+              <div style={{ position: "relative", width: "8px", height: "8px" }}>
+                <span
+                  style={{
+                    display: "block",
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    background: conn.dotColor,
+                  }}
+                />
+                {conn.pulse && (
+                  <span
+                    className="pulse-ring"
+                    style={{ color: conn.dotColor }}
+                  />
+                )}
+              </div>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.6rem",
+                  letterSpacing: "0.1em",
+                  color: conn.color,
+                }}
+              >
+                {conn.label}
+              </span>
+            </div>
+
+            {/* Divider */}
+            <div style={{ width: "1px", height: "20px", background: "var(--border)" }} />
+
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-6 space-y-6">
-        {/* Sensor Cards */}
+      {/* ── Main ─────────────────────────────────────────────── */}
+      <main className="max-w-7xl mx-auto px-6 py-6 space-y-5">
+
+        {/* Row 1: Sensor cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <SensorCard
             label="Suhu Ruangan"
             value={sensorData?.suhu ?? null}
             unit="°C"
-            icon="🌡️"
+            icon="°"
             color="blue"
           />
           <SensorCard
             label="Kelembapan"
             value={sensorData?.kelembapan ?? null}
             unit="%"
-            icon="💧"
+            icon="~"
             color="cyan"
           />
           <SensorCard
             label="Pengunjung Hari Ini"
             value={sensorData?.orang_hari_ini ?? null}
             unit="orang"
-            icon="👥"
+            icon="#"
             color="emerald"
           />
         </div>
 
-        {/* Main Content */}
+        {/* Row 2: Chart + Sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Left: Chart (2/3 width) */}
-          <div className="lg:col-span-2">
+
+          {/* Chart spans 2 cols */}
+          <div className="lg:col-span-2 min-h-0">
             <TemperatureChart sensorData={sensorData} />
           </div>
 
-          {/* Right Sidebar (1/3 width) */}
-          <div className="space-y-4">
+          {/* Sidebar */}
+          <div className="flex flex-col gap-4">
             <AIAnalysis sensorData={sensorData} />
             <ExportButton filter="7d" />
             <HistoryTable />
           </div>
         </div>
+
+        {/* Footer metadata */}
+        <div
+          className="orb-divider"
+          style={{ marginTop: "0.5rem" }}
+        />
+        <p
+          className="text-center orb-label pb-2"
+          style={{ fontSize: "0.58rem" }}
+        >
+          ORBITAL COMMAND · IOT ROOM MONITOR · POLNES TRK 6C 2025
+        </p>
       </main>
     </div>
   );

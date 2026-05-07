@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import clsx from "clsx";
 import { analyzeRoom } from "../api/ai";
 import type { SensorData } from "../types/sensor";
 
@@ -31,7 +30,6 @@ export function AIAnalysis({ sensorData }: AIAnalysisProps) {
     }
   }
 
-  // Auto-load once when first sensor data arrives
   useEffect(() => {
     if (sensorData && !hasAutoLoaded) {
       setHasAutoLoaded(true);
@@ -41,49 +39,98 @@ export function AIAnalysis({ sensorData }: AIAnalysisProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sensorData, hasAutoLoaded]);
 
+  const canRefresh = !loading && !!sensorData;
+
   return (
-    <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+    <div className="orb-card orb-card-purple p-5">
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300">
-          🤖 Analisis AI
-        </h2>
+        <div>
+          <p className="orb-label mb-0.5">Kecerdasan Buatan</p>
+          <h2
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.85rem",
+              fontWeight: 600,
+              color: "#c4b5fd",
+              letterSpacing: "0.04em",
+            }}
+          >
+            ANALISIS AI
+          </h2>
+        </div>
+
         <button
           onClick={fetchAnalysis}
-          disabled={loading || !sensorData}
-          className={clsx(
-            "px-3 py-1 text-xs rounded-lg transition-colors duration-150",
-            loading || !sensorData
-              ? "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
-              : "bg-purple-600 hover:bg-purple-700 text-white"
-          )}
+          disabled={!canRefresh}
+          className={`orb-btn ${canRefresh ? "orb-btn-primary" : "orb-btn-disabled"}`}
+          style={{
+            fontSize: "0.65rem",
+            padding: "0.3rem 0.75rem",
+            borderRadius: "8px",
+            ...(canRefresh
+              ? {
+                  background: "linear-gradient(135deg, rgba(167,139,250,0.18), rgba(196,181,253,0.1))",
+                  borderColor: "rgba(167,139,250,0.4)",
+                  color: "#c4b5fd",
+                }
+              : {}),
+          }}
         >
-          {loading ? "Menganalisis..." : "Refresh"}
+          {loading ? "ANALISIS…" : "REFRESH"}
         </button>
       </div>
 
-      <div className="min-h-24">
+      <div className="orb-divider mb-3" />
+
+      {/* Content */}
+      <div style={{ minHeight: "80px" }}>
         {loading && (
-          <div className="flex items-center gap-2 text-purple-400 text-sm">
-            <span className="animate-spin">⏳</span> Menganalisis kondisi ruangan...
+          <div
+            className="ai-loading rounded-lg p-3"
+            style={{ fontSize: "0.75rem", fontFamily: "var(--font-body)", color: "rgba(150,180,220,0.6)", lineHeight: 1.6 }}
+          >
+            Menganalisis kondisi ruangan…
           </div>
         )}
+
         {!loading && error && (
-          <div className="text-red-400 text-sm">
-            {error}
+          <div style={{ fontSize: "0.75rem", fontFamily: "var(--font-body)", color: "var(--red)", lineHeight: 1.6 }}>
+            {error}{" "}
             <button
               onClick={fetchAnalysis}
-              className="ml-2 underline text-red-300 hover:text-red-200"
+              style={{
+                color: "#fca5a5",
+                textDecoration: "underline",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontFamily: "var(--font-body)",
+                fontSize: "0.75rem",
+              }}
             >
               Coba lagi
             </button>
           </div>
         )}
+
         {!loading && !error && analysis && (
-          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{analysis}</p>
+          <p
+            style={{
+              fontSize: "0.78rem",
+              fontFamily: "var(--font-body)",
+              color: "var(--text)",
+              lineHeight: 1.75,
+              margin: 0,
+            }}
+          >
+            {analysis}
+          </p>
         )}
+
         {!loading && !error && !analysis && (
-          <p className="text-sm text-gray-400">
-            Klik Refresh untuk mendapatkan analisis kondisi ruangan.
+          <p className="orb-label text-center py-4" style={{ fontSize: "0.65rem" }}>
+            menunggu analisis…
           </p>
         )}
       </div>

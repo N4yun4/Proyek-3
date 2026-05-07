@@ -1,5 +1,4 @@
 import { useState } from "react";
-import clsx from "clsx";
 import { downloadCSV } from "../api/export";
 import type { HistoryFilter } from "../types/sensor";
 
@@ -32,27 +31,47 @@ export function ExportButton({ filter = "all" }: ExportButtonProps) {
     }
   }
 
+  const isLoading = status === "loading";
+
   return (
     <div>
       <button
         onClick={handleExport}
-        disabled={status === "loading"}
-        className={clsx(
-          "w-full px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-150 flex items-center justify-center gap-2",
-          status === "loading"
-            ? "bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700 text-white"
-        )}
+        disabled={isLoading}
+        className={`orb-btn w-full ${isLoading ? "orb-btn-disabled" : "orb-btn-primary"}`}
+        style={{
+          padding: "0.6rem 1rem",
+          borderRadius: "10px",
+          fontSize: "0.72rem",
+          letterSpacing: "0.08em",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "0.5rem",
+        }}
       >
-        {status === "loading" ? "⏳ Menyiapkan..." : "📥 Export CSV"}
+        {/* Icon */}
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M6 1v7M3 5.5l3 3 3-3M1 10h10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        {isLoading ? "MENYIAPKAN…" : "EXPORT CSV"}
       </button>
+
       {status === "empty" && (
-        <p className="mt-2 text-xs text-center text-yellow-500">
-          Tidak ada data di rentang ini
+        <p
+          className="mt-2 text-center orb-label"
+          style={{ fontSize: "0.6rem", color: "var(--amber)" }}
+        >
+          tidak ada data di rentang ini
         </p>
       )}
       {status === "error" && (
-        <p className="mt-2 text-xs text-center text-red-400">Export gagal, coba lagi</p>
+        <p
+          className="mt-2 text-center orb-label"
+          style={{ fontSize: "0.6rem", color: "var(--red)" }}
+        >
+          export gagal, coba lagi
+        </p>
       )}
     </div>
   );

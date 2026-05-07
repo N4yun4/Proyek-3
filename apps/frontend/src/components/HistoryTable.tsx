@@ -1,5 +1,4 @@
 import { useState } from "react";
-import clsx from "clsx";
 import { useHistory } from "../hooks/useHistory";
 import type { HistoryFilter } from "../types/sensor";
 
@@ -14,22 +13,32 @@ export function HistoryTable() {
   const { data, loading, error } = useHistory(filter);
 
   return (
-    <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+    <div className="orb-card orb-card-green p-5">
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300">
-          Riwayat Pengunjung
-        </h2>
+        <div>
+          <p className="orb-label mb-0.5">Data Historis</p>
+          <h2
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.85rem",
+              fontWeight: 600,
+              color: "#6ee7b7",
+              letterSpacing: "0.04em",
+            }}
+          >
+            RIWAYAT PENGUNJUNG
+          </h2>
+        </div>
+
+        {/* Filter chips */}
         <div className="flex gap-1">
           {FILTERS.map((f) => (
             <button
               key={f.value}
               onClick={() => setFilter(f.value)}
-              className={clsx(
-                "px-3 py-1 text-xs rounded-lg transition-colors duration-150",
-                filter === f.value
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
-              )}
+              className={`filter-chip ${filter === f.value ? "filter-chip-active" : "filter-chip-inactive"}`}
+              style={filter === f.value ? { borderColor: "rgba(52,211,153,0.45)", color: "#6ee7b7", background: "rgba(52,211,153,0.12)" } : undefined}
             >
               {f.label}
             </button>
@@ -37,34 +46,66 @@ export function HistoryTable() {
         </div>
       </div>
 
-      <div className="overflow-y-auto max-h-72">
+      {/* Divider */}
+      <div className="orb-divider mb-3" />
+
+      {/* Table area */}
+      <div className="overflow-y-auto" style={{ maxHeight: "220px" }}>
         {loading && (
-          <div className="text-center py-8 text-gray-400 text-sm">Memuat data...</div>
+          <div className="py-8 text-center orb-label" style={{ fontSize: "0.7rem" }}>
+            memuat data…
+          </div>
         )}
         {error && (
-          <div className="text-center py-8 text-red-400 text-sm">{error}</div>
+          <div className="py-8 text-center" style={{ color: "var(--red)", fontSize: "0.75rem", fontFamily: "var(--font-body)" }}>
+            {error}
+          </div>
         )}
         {!loading && !error && data.length === 0 && (
-          <div className="text-center py-8 text-gray-400 text-sm">
-            Belum ada data riwayat
+          <div className="py-8 text-center orb-label" style={{ fontSize: "0.7rem" }}>
+            belum ada data riwayat
           </div>
         )}
         {!loading && !error && data.length > 0 && (
-          <table className="w-full text-sm">
+          <table className="w-full" style={{ borderCollapse: "collapse" }}>
             <thead>
-              <tr className="text-gray-400 border-b border-gray-100 dark:border-gray-800">
-                <th className="pb-2 text-left font-medium">Tanggal</th>
-                <th className="pb-2 text-right font-medium">Pengunjung</th>
+              <tr>
+                <th
+                  className="orb-label pb-2 text-left"
+                  style={{ fontSize: "0.6rem", borderBottom: "1px solid rgba(52,211,153,0.1)" }}
+                >
+                  Tanggal
+                </th>
+                <th
+                  className="orb-label pb-2 text-right"
+                  style={{ fontSize: "0.6rem", borderBottom: "1px solid rgba(52,211,153,0.1)" }}
+                >
+                  Pengunjung
+                </th>
               </tr>
             </thead>
             <tbody>
               {data.map((entry) => (
                 <tr
                   key={entry.tanggal}
-                  className="border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                  className="data-row"
+                  style={{ borderBottom: "1px solid rgba(52,211,153,0.05)" }}
                 >
-                  <td className="py-2 text-gray-700 dark:text-gray-300">{entry.tanggal}</td>
-                  <td className="py-2 text-right font-semibold text-emerald-500">
+                  <td
+                    className="py-1.5"
+                    style={{ fontSize: "0.78rem", fontFamily: "var(--font-body)", color: "var(--text)" }}
+                  >
+                    {entry.tanggal}
+                  </td>
+                  <td
+                    className="py-1.5 text-right tabular-nums"
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.85rem",
+                      fontWeight: 700,
+                      color: "#34d399",
+                    }}
+                  >
                     {entry.total}
                   </td>
                 </tr>
