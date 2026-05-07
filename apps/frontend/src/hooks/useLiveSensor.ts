@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import type { SensorData, ConnectionStatus } from "../types/sensor";
 
 const WS_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:3000")
-  .replace(/^http/, "ws") + "/sensor/live";
+  .replace(/^http/, "ws") + "/api/sensor/live";
 
 export function useLiveSensor() {
   const [sensorData, setSensorData] = useState<SensorData | null>(null);
