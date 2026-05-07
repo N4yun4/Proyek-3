@@ -5,7 +5,8 @@ const STORAGE_KEY = "theme";
 
 function getInitialTheme(): Theme {
   const saved = localStorage.getItem(STORAGE_KEY) as Theme | null;
-  return saved === "light" ? "light" : "dark";
+  if (saved === "dark" || saved === "light") return saved;
+  return "light";
 }
 
 export function useTheme() {

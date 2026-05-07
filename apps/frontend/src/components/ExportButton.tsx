@@ -38,39 +38,42 @@ export function ExportButton({ filter = "all" }: ExportButtonProps) {
       <button
         onClick={handleExport}
         disabled={isLoading}
-        className={`orb-btn w-full ${isLoading ? "orb-btn-disabled" : "orb-btn-primary"}`}
+        className={`sh-btn w-full ${isLoading ? "sh-btn-disabled" : "sh-btn-primary"}`}
         style={{
-          padding: "0.6rem 1rem",
-          borderRadius: "10px",
-          fontSize: "0.72rem",
-          letterSpacing: "0.08em",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "0.5rem",
+          padding: "0.65rem 1rem",
+          borderRadius: "var(--radius-sm)",
+          fontSize: "0.8rem",
+          fontWeight: 500,
+          letterSpacing: "0.01em",
+          width: "100%",
         }}
       >
-        {/* Icon */}
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-          <path d="M6 1v7M3 5.5l3 3 3-3M1 10h10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        {isLoading ? "MENYIAPKAN…" : "EXPORT CSV"}
+        {isLoading ? (
+          "Menyiapkan…"
+        ) : (
+          <>
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+              <path d="M6.5 1.5v7M3.5 6l3 3 3-3M1.5 11h10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Export CSV
+          </>
+        )}
       </button>
 
       {status === "empty" && (
         <p
-          className="mt-2 text-center orb-label"
-          style={{ fontSize: "0.6rem", color: "var(--amber)" }}
+          className="mt-1.5 text-center sh-label"
+          style={{ fontSize: "0.62rem", color: "var(--amber)" }}
         >
-          tidak ada data di rentang ini
+          Tidak ada data di rentang ini
         </p>
       )}
       {status === "error" && (
         <p
-          className="mt-2 text-center orb-label"
-          style={{ fontSize: "0.6rem", color: "var(--red)" }}
+          className="mt-1.5 text-center sh-label"
+          style={{ fontSize: "0.62rem", color: "var(--red)" }}
         >
-          export gagal, coba lagi
+          Export gagal, coba lagi
         </p>
       )}
     </div>

@@ -9,7 +9,6 @@ import {
   Tooltip,
   Filler,
 } from "chart.js";
-import clsx from "clsx";
 import type { SensorData } from "../types/sensor";
 
 Chart.register(LineElement, PointElement, LineController, CategoryScale, LinearScale, Tooltip, Filler);
@@ -44,14 +43,19 @@ function nowLabel() {
   });
 }
 
+const statsCfg = [
+  { key: "min" as const, label: "Min",  color: "#4A8FE7" },
+  { key: "avg" as const, label: "Rata",  color: "#9B9691" },
+  { key: "max" as const, label: "Maks",  color: "#E8714A" },
+];
+
 export function TemperatureChart({ sensorData }: TemperatureChartProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const chartRef = useRef<Chart | null>(null);
-  const labelsRef = useRef<string[]>([]);
-  const valuesRef = useRef<number[]>([]);
+  const canvasRef  = useRef<HTMLCanvasElement>(null);
+  const chartRef   = useRef<Chart | null>(null);
+  const labelsRef  = useRef<string[]>([]);
+  const valuesRef  = useRef<number[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
 
-  // Init chart
   useEffect(() => {
     if (!canvasRef.current) return;
 
@@ -63,11 +67,24 @@ export function TemperatureChart({ sensorData }: TemperatureChartProps) {
           {
             label: "Suhu (°C)",
             data: [],
-            borderColor: "#3b82f6",
-            backgroundColor: "rgba(59,130,246,0.1)",
+            borderColor: "#4A8FE7",
+            backgroundColor: (ctx) => {
+              const chart = ctx.chart;
+              const { ctx: c, chartArea } = chart;
+              if (!chartArea) return "rgba(74,143,231,0.08)";
+              const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, "rgba(74,143,231,0.15)");
+              gradient.addColorStop(1, "rgba(74,143,231,0)");
+              return gradient;
+            },
+            borderWidth: 2,
             fill: true,
             tension: 0.4,
-            pointRadius: 2,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "#4A8FE7",
+            pointHoverBorderColor: "#fff",
+            pointHoverBorderWidth: 2,
           },
         ],
       },
@@ -75,21 +92,47 @@ export function TemperatureChart({ sensorData }: TemperatureChartProps) {
         responsive: true,
         maintainAspectRatio: false,
         animation: false,
+        interaction: { mode: "index", intersect: false },
         scales: {
           x: {
-            ticks: { color: "#6b7280", maxTicksLimit: 8 },
-            grid: { color: "rgba(107,114,128,0.1)" },
+            ticks: {
+              color: "#C8C4BE",
+              font: { family: "DM Sans", size: 10 },
+              maxTicksLimit: 6,
+              maxRotation: 0,
+            },
+            grid: { display: false },
+            border: { display: false },
           },
           y: {
             min: 15,
             max: 40,
-            ticks: { color: "#6b7280" },
-            grid: { color: "rgba(107,114,128,0.1)" },
+            ticks: {
+              color: "#C8C4BE",
+              font: { family: "DM Sans", size: 10 },
+              callback: (v) => `${v}°`,
+              stepSize: 5,
+            },
+            grid: { color: "rgba(0,0,0,0.04)" },
+            border: { display: false },
           },
         },
         plugins: {
           legend: { display: false },
-          tooltip: { mode: "index", intersect: false },
+          tooltip: {
+            backgroundColor: "#FFFFFF",
+            borderColor: "rgba(0,0,0,0.1)",
+            borderWidth: 1,
+            titleColor: "#9B9691",
+            bodyColor: "#1C1B19",
+            titleFont: { family: "DM Sans", size: 10 },
+            bodyFont: { family: "DM Sans", size: 13, weight: "600" },
+            padding: 10,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)" as never,
+            callbacks: {
+              label: (item) => ` ${item.raw}°C`,
+            },
+          },
         },
       },
     });
@@ -100,7 +143,6 @@ export function TemperatureChart({ sensorData }: TemperatureChartProps) {
     };
   }, []);
 
-  // Push new data points
   useEffect(() => {
     if (!sensorData || !chartRef.current) return;
 
@@ -120,25 +162,64 @@ export function TemperatureChart({ sensorData }: TemperatureChartProps) {
   }, [sensorData]);
 
   return (
-    <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
-      <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-4">
-        Grafik Suhu — Sesi Aktif
-      </h2>
-      <div className="h-56">
+    <div className="sh-card p-6 h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <p className="sh-label mb-1">Sensor Suhu</p>
+          <h2
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "0.9rem",
+              fontWeight: 600,
+              color: "var(--text)",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            Grafik Realtime
+          </h2>
+        </div>
+
+        {sensorData && (
+          <div style={{ textAlign: "right" }}>
+            <div
+              className="sh-value"
+              style={{ fontSize: "2rem", color: "#4A8FE7" }}
+            >
+              {sensorData.suhu}
+              <span style={{ fontSize: "0.9rem", fontWeight: 400, color: "var(--text-2)", marginLeft: "3px" }}>°C</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Chart */}
+      <div style={{ height: "190px" }}>
         <canvas ref={canvasRef} />
       </div>
-      {stats && (
-        <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm">
-          {[
-            { label: "Min", value: `${stats.min}°C`, color: "text-blue-400" },
-            { label: "Avg", value: `${stats.avg}°C`, color: "text-gray-400" },
-            { label: "Max", value: `${stats.max}°C`, color: "text-red-400" },
-          ].map(({ label, value, color }) => (
-            <div key={label} className="rounded-lg bg-gray-50 dark:bg-gray-800 py-2">
-              <div className={clsx("font-bold tabular-nums", color)}>{value}</div>
-              <div className="text-xs text-gray-500">{label}</div>
+
+      {/* Stats */}
+      {stats ? (
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          {statsCfg.map(({ key, label, color }) => (
+            <div
+              key={key}
+              className="text-center py-3 px-2 rounded-2xl"
+              style={{ background: "var(--surface-2)" }}
+            >
+              <div
+                className="sh-value tabular-nums"
+                style={{ fontSize: "1.05rem", color }}
+              >
+                {stats[key]}°
+              </div>
+              <div className="sh-label mt-1" style={{ fontSize: "0.6rem" }}>{label}</div>
             </div>
           ))}
+        </div>
+      ) : (
+        <div className="mt-4 py-2 text-center sh-label" style={{ fontSize: "0.65rem" }}>
+          menunggu data…
         </div>
       )}
     </div>

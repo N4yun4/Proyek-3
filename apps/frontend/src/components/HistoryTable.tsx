@@ -13,32 +13,30 @@ export function HistoryTable() {
   const { data, loading, error } = useHistory(filter);
 
   return (
-    <div className="orb-card orb-card-green p-5">
+    <div className="sh-card p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <p className="orb-label mb-0.5">Data Historis</p>
-          <h2
+          <p className="sh-label mb-0.5">Data Historis</p>
+          <h3
             style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.85rem",
+              fontFamily: "var(--font-body)",
+              fontSize: "0.88rem",
               fontWeight: 600,
-              color: "#6ee7b7",
-              letterSpacing: "0.04em",
+              color: "var(--text)",
+              letterSpacing: "-0.01em",
             }}
           >
-            RIWAYAT PENGUNJUNG
-          </h2>
+            Riwayat Pengunjung
+          </h3>
         </div>
 
-        {/* Filter chips */}
         <div className="flex gap-1">
           {FILTERS.map((f) => (
             <button
               key={f.value}
               onClick={() => setFilter(f.value)}
-              className={`filter-chip ${filter === f.value ? "filter-chip-active" : "filter-chip-inactive"}`}
-              style={filter === f.value ? { borderColor: "rgba(52,211,153,0.45)", color: "#6ee7b7", background: "rgba(52,211,153,0.12)" } : undefined}
+              className={`sh-chip ${filter === f.value ? "sh-chip-active" : "sh-chip-inactive"}`}
             >
               {f.label}
             </button>
@@ -46,23 +44,25 @@ export function HistoryTable() {
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="orb-divider mb-3" />
+      <div className="sh-divider mb-3" />
 
-      {/* Table area */}
-      <div className="overflow-y-auto" style={{ maxHeight: "220px" }}>
+      {/* Table body */}
+      <div className="overflow-y-auto" style={{ maxHeight: "210px" }}>
         {loading && (
-          <div className="py-8 text-center orb-label" style={{ fontSize: "0.7rem" }}>
+          <div className="py-8 text-center sh-label" style={{ fontSize: "0.65rem" }}>
             memuat data…
           </div>
         )}
         {error && (
-          <div className="py-8 text-center" style={{ color: "var(--red)", fontSize: "0.75rem", fontFamily: "var(--font-body)" }}>
+          <div
+            className="py-8 text-center"
+            style={{ color: "var(--red)", fontSize: "0.78rem", fontFamily: "var(--font-body)" }}
+          >
             {error}
           </div>
         )}
         {!loading && !error && data.length === 0 && (
-          <div className="py-8 text-center orb-label" style={{ fontSize: "0.7rem" }}>
+          <div className="py-8 text-center sh-label" style={{ fontSize: "0.65rem" }}>
             belum ada data riwayat
           </div>
         )}
@@ -71,14 +71,14 @@ export function HistoryTable() {
             <thead>
               <tr>
                 <th
-                  className="orb-label pb-2 text-left"
-                  style={{ fontSize: "0.6rem", borderBottom: "1px solid rgba(52,211,153,0.1)" }}
+                  className="sh-label pb-2 text-left"
+                  style={{ fontSize: "0.6rem", borderBottom: "1px solid var(--border)" }}
                 >
                   Tanggal
                 </th>
                 <th
-                  className="orb-label pb-2 text-right"
-                  style={{ fontSize: "0.6rem", borderBottom: "1px solid rgba(52,211,153,0.1)" }}
+                  className="sh-label pb-2 text-right"
+                  style={{ fontSize: "0.6rem", borderBottom: "1px solid var(--border)" }}
                 >
                   Pengunjung
                 </th>
@@ -88,22 +88,26 @@ export function HistoryTable() {
               {data.map((entry) => (
                 <tr
                   key={entry.tanggal}
-                  className="data-row"
-                  style={{ borderBottom: "1px solid rgba(52,211,153,0.05)" }}
+                  className="data-row rounded-lg"
+                  style={{ borderBottom: "1px solid var(--border)" }}
                 >
                   <td
-                    className="py-1.5"
-                    style={{ fontSize: "0.78rem", fontFamily: "var(--font-body)", color: "var(--text)" }}
+                    className="py-2"
+                    style={{
+                      fontSize: "0.8rem",
+                      fontFamily: "var(--font-body)",
+                      color: "var(--text)",
+                    }}
                   >
                     {entry.tanggal}
                   </td>
                   <td
-                    className="py-1.5 text-right tabular-nums"
+                    className="py-2 text-right tabular-nums"
                     style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "0.85rem",
-                      fontWeight: 700,
-                      color: "#34d399",
+                      fontFamily: "var(--font-body)",
+                      fontSize: "0.88rem",
+                      fontWeight: 600,
+                      color: "#5BAD7F",
                     }}
                   >
                     {entry.total}

@@ -1,3 +1,254 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ─── Design Tokens ─────────────────────────────────────── */
+:root {
+  --bg:        #F7F5F0;
+  --surface:   #FFFFFF;
+  --surface-2: #F2F0EB;
+  --surface-3: #EAE8E3;
+  --border:    rgba(0, 0, 0, 0.07);
+  --border-hi: rgba(0, 0, 0, 0.13);
+  --accent:    #E8714A;
+  --accent-dk: #D05C35;
+  --blue:      #4A8FE7;
+  --green:     #5BAD7F;
+  --amber:     #F5A623;
+  --red:       #E85454;
+  --text:      #1C1B19;
+  --text-2:    #9B9691;
+  --text-3:    #C8C4BE;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --radius-sm: 10px;
+  --radius:    16px;
+  --radius-lg: 22px;
+  --shadow:     0 2px 16px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+  --shadow-md:  0 6px 28px rgba(0,0,0,0.09), 0 0 0 1px rgba(0,0,0,0.04);
+  --shadow-sm:  0 1px 6px rgba(0,0,0,0.07);
+}
+
+/* ─── Dark Mode Tokens ───────────────────────────────────── */
+html.dark {
+  --bg:        #131210;
+  --surface:   #1D1B18;
+  --surface-2: #252320;
+  --surface-3: #2E2B27;
+  --border:    rgba(255,255,255,0.07);
+  --border-hi: rgba(255,255,255,0.12);
+  --text:      #F0EDE8;
+  --text-2:    #7A756F;
+  --text-3:    #4A4640;
+  --shadow:    0 2px 16px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.04);
+  --shadow-md: 0 6px 28px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
+  --shadow-sm: 0 1px 6px rgba(0,0,0,0.2);
+}
+
+/* ─── Base Reset ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ─── Background ─────────────────────────────────────────── */
+.sh-bg {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 60% 30% at 20% -10%, rgba(232,113,74,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 25% at 80% -5%,  rgba(74,143,231,0.05) 0%, transparent 70%);
+  min-height: 100vh;
+}
+html.dark .sh-bg {
+  background-image:
+    radial-gradient(ellipse 60% 30% at 20% -10%, rgba(232,113,74,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 25% at 80% -5%,  rgba(74,143,231,0.04) 0%, transparent 70%);
+}
+
+/* ─── Card ───────────────────────────────────────────────── */
+.sh-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+.sh-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* ─── Typography ─────────────────────────────────────────── */
+.sh-display {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.sh-label {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+.sh-value {
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+
+/* ─── Divider ─────────────────────────────────────────────── */
+.sh-divider {
+  height: 1px;
+  background: var(--border);
+}
+
+/* ─── Live Dot ────────────────────────────────────────────── */
+@keyframes blink-soft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+.live-dot { animation: blink-soft 2s ease-in-out infinite; }
+
+/* ─── Pulse Ring ──────────────────────────────────────────── */
+@keyframes ring-pulse {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  70%  { transform: scale(2.4); opacity: 0;   }
+  100% { transform: scale(1);   opacity: 0;   }
+}
+.pulse-ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  animation: ring-pulse 2.2s ease-out infinite;
+}
+
+/* ─── Buttons ─────────────────────────────────────────────── */
+.sh-btn {
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all 0.2s ease;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.sh-btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.sh-btn-primary:hover:not(:disabled) {
+  background: var(--accent-dk);
+  box-shadow: 0 4px 18px rgba(232,113,74,0.35);
+}
+
+.sh-btn-ghost {
+  background: transparent;
+  color: var(--text-2);
+  border: 1px solid var(--border-hi);
+}
+.sh-btn-ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.sh-btn-disabled {
+  background: var(--surface-2);
+  color: var(--text-3);
+  cursor: not-allowed;
+  border: 1px solid var(--border);
+}
+
+/* ─── Filter Chips ────────────────────────────────────────── */
+.sh-chip {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.22rem 0.65rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  letter-spacing: 0.03em;
+}
+.sh-chip-active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.sh-chip-inactive {
+  background: transparent;
+  color: var(--text-2);
+  border-color: var(--border-hi);
+}
+.sh-chip-inactive:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--border-hi);
+}
+
+/* ─── Data Row ────────────────────────────────────────────── */
+.data-row { transition: background 0.15s ease; }
+.data-row:hover { background: var(--surface-2); }
+
+/* ─── AI Loading Shimmer ──────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.sh-loading {
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 0%,
+    var(--surface-3) 45%,
+    var(--surface-2) 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 1.6s linear infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-hi);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+/* ─── Fade-in animation ───────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  animation: fade-up 0.4s ease forwards;
+  opacity: 0;
+}
+.fade-up-1 { animation-delay: 0.05s; }
+.fade-up-2 { animation-delay: 0.1s;  }
+.fade-up-3 { animation-delay: 0.15s; }
+.fade-up-4 { animation-delay: 0.22s; }
+.fade-up-5 { animation-delay: 0.3s;  }

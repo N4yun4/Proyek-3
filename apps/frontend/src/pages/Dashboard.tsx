@@ -8,11 +8,42 @@ import { ExportButton } from "../components/ExportButton";
 import { ThemeToggle } from "../components/ThemeToggle";
 import type { ConnectionStatus } from "../types/sensor";
 
-const statusCfg: Record<ConnectionStatus, { label: string; color: string; dotColor: string; pulse: boolean }> = {
-  connecting:   { label: "MENGHUBUNGKAN",  color: "#fbbf24", dotColor: "#fbbf24", pulse: true  },
-  connected:    { label: "TERHUBUNG",       color: "#34d399", dotColor: "#34d399", pulse: false },
-  disconnected: { label: "RECONNECTING",   color: "#f87171", dotColor: "#f87171", pulse: true  },
+const statusCfg: Record<ConnectionStatus, { label: string; color: string; dot: string; pulse: boolean }> = {
+  connecting:   { label: "Menghubungkan",  color: "#F5A623", dot: "#F5A623", pulse: true  },
+  connected:    { label: "Terhubung",       color: "#5BAD7F", dot: "#5BAD7F", pulse: false },
+  disconnected: { label: "Terputus",        color: "#E85454", dot: "#E85454", pulse: true  },
 };
+
+/* ── Inline SVG icons (no emoji, cleaner rendering) ── */
+function IconTemp() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M9 2.5v7.2" stroke="#4A8FE7" strokeWidth="1.5" strokeLinecap="round"/>
+      <circle cx="9" cy="13" r="2.5" fill="#4A8FE7" fillOpacity="0.2" stroke="#4A8FE7" strokeWidth="1.4"/>
+      <path d="M7 5h4" stroke="#4A8FE7" strokeWidth="1.2" strokeLinecap="round" opacity="0.5"/>
+      <path d="M7 7.5h4" stroke="#4A8FE7" strokeWidth="1.2" strokeLinecap="round" opacity="0.5"/>
+    </svg>
+  );
+}
+
+function IconHumidity() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M9 3L5 9.5a4 4 0 1 0 8 0L9 3z" fill="#5BAD7F" fillOpacity="0.15" stroke="#5BAD7F" strokeWidth="1.4" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function IconPeople() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <circle cx="7" cy="6" r="2.5" stroke="#E8714A" strokeWidth="1.4"/>
+      <path d="M2 15c0-3 2.2-5 5-5s5 2 5 5" stroke="#E8714A" strokeWidth="1.4" strokeLinecap="round"/>
+      <circle cx="13" cy="6.5" r="2" stroke="#E8714A" strokeWidth="1.2" opacity="0.6"/>
+      <path d="M16 15c0-2.5-1.4-4-3-4.5" stroke="#E8714A" strokeWidth="1.2" strokeLinecap="round" opacity="0.6"/>
+    </svg>
+  );
+}
 
 export function Dashboard() {
   const { sensorData, status } = useLiveSensor();
@@ -20,99 +51,57 @@ export function Dashboard() {
   const conn = statusCfg[status];
 
   return (
-    <div className="min-h-screen orbital-bg scanlines" style={{ color: "var(--text)" }}>
+    <div className="sh-bg" style={{ minHeight: "100vh", color: "var(--text)" }}>
 
-      {/* ── Header ───────────────────────────────────────────── */}
+      {/* ── Header ─────────────────────────────────────────── */}
       <header
         style={{
+          background: "var(--surface)",
           borderBottom: "1px solid var(--border)",
-          background: "rgba(7,13,28,0.85)",
-          backdropFilter: "blur(12px)",
           position: "sticky",
           top: 0,
           zIndex: 100,
         }}
       >
-        <div
-          className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between"
-        >
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Brand */}
-          <div className="flex items-center gap-3">
-            {/* Logo mark */}
-            <div
-              style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "8px",
-                background: "linear-gradient(135deg, rgba(56,139,253,0.2), rgba(34,211,238,0.1))",
-                border: "1px solid rgba(56,139,253,0.35)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
+          <div>
+            <h1
+              className="sh-display"
+              style={{ fontSize: "1.5rem" }}
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <circle cx="8" cy="8" r="3" stroke="#388bfd" strokeWidth="1" />
-                <circle cx="8" cy="8" r="6.5" stroke="#388bfd" strokeWidth="0.6" strokeDasharray="2 2" />
-                <path d="M8 1.5V4M8 12v2.5M1.5 8H4M12 8h2.5" stroke="#22d3ee" strokeWidth="0.8" strokeLinecap="round" />
-              </svg>
-            </div>
-
-            <div>
-              <h1
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.95rem",
-                  fontWeight: 700,
-                  color: "#93c5fd",
-                  letterSpacing: "0.12em",
-                  lineHeight: 1,
-                }}
-              >
-                ORBITAL
-              </h1>
-              <p
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "0.6rem",
-                  color: "var(--text-2)",
-                  letterSpacing: "0.1em",
-                  marginTop: "2px",
-                  textTransform: "uppercase",
-                }}
-              >
-                Monitoring Ruangan IoT
-              </p>
-            </div>
+              Home Monitor
+            </h1>
+            <p
+              className="sh-label mt-0.5"
+              style={{ fontSize: "0.62rem" }}
+            >
+              Pemantauan Kondisi Ruangan · Real-Time
+            </p>
           </div>
 
-          {/* Right controls */}
+          {/* Status + Toggle */}
           <div className="flex items-center gap-4">
-            {/* Connection status */}
             <div className="flex items-center gap-2">
-              <div style={{ position: "relative", width: "8px", height: "8px" }}>
+              <div style={{ position: "relative", width: "8px", height: "8px", flexShrink: 0 }}>
                 <span
                   style={{
                     display: "block",
                     width: "8px",
                     height: "8px",
                     borderRadius: "50%",
-                    background: conn.dotColor,
+                    background: conn.dot,
                   }}
                 />
                 {conn.pulse && (
-                  <span
-                    className="pulse-ring"
-                    style={{ color: conn.dotColor }}
-                  />
+                  <span className="pulse-ring" style={{ color: conn.dot }} />
                 )}
               </div>
               <span
                 style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.6rem",
-                  letterSpacing: "0.1em",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "0.75rem",
+                  fontWeight: 500,
                   color: conn.color,
                 }}
               >
@@ -120,68 +109,76 @@ export function Dashboard() {
               </span>
             </div>
 
-            {/* Divider */}
-            <div style={{ width: "1px", height: "20px", background: "var(--border)" }} />
+            <div
+              style={{
+                width: "1px",
+                height: "18px",
+                background: "var(--border-hi)",
+                flexShrink: 0,
+              }}
+            />
 
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
         </div>
       </header>
 
-      {/* ── Main ─────────────────────────────────────────────── */}
-      <main className="max-w-7xl mx-auto px-6 py-6 space-y-5">
+      {/* ── Main ───────────────────────────────────────────── */}
+      <main className="max-w-6xl mx-auto px-6 py-7 space-y-5">
 
-        {/* Row 1: Sensor cards */}
+        {/* Sensor cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <SensorCard
-            label="Suhu Ruangan"
-            value={sensorData?.suhu ?? null}
-            unit="°C"
-            icon="°"
-            color="blue"
-          />
-          <SensorCard
-            label="Kelembapan"
-            value={sensorData?.kelembapan ?? null}
-            unit="%"
-            icon="~"
-            color="cyan"
-          />
-          <SensorCard
-            label="Pengunjung Hari Ini"
-            value={sensorData?.orang_hari_ini ?? null}
-            unit="orang"
-            icon="#"
-            color="emerald"
-          />
+          <div className="fade-up fade-up-1">
+            <SensorCard
+              label="Suhu Ruangan"
+              value={sensorData?.suhu ?? null}
+              unit="°C"
+              icon={<IconTemp />}
+              color="blue"
+            />
+          </div>
+          <div className="fade-up fade-up-2">
+            <SensorCard
+              label="Kelembapan"
+              value={sensorData?.kelembapan ?? null}
+              unit="%"
+              icon={<IconHumidity />}
+              color="green"
+            />
+          </div>
+          <div className="fade-up fade-up-3">
+            <SensorCard
+              label="Pengunjung Hari Ini"
+              value={sensorData?.orang_hari_ini ?? null}
+              unit="orang"
+              icon={<IconPeople />}
+              color="amber"
+            />
+          </div>
         </div>
 
-        {/* Row 2: Chart + Sidebar */}
+        {/* Chart + Sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-          {/* Chart spans 2 cols */}
-          <div className="lg:col-span-2 min-h-0">
+          {/* Chart — 2 cols */}
+          <div className="lg:col-span-2 fade-up fade-up-4">
             <TemperatureChart sensorData={sensorData} />
           </div>
 
-          {/* Sidebar */}
-          <div className="flex flex-col gap-4">
+          {/* Sidebar — 1 col */}
+          <div className="flex flex-col gap-4 fade-up fade-up-5">
             <AIAnalysis sensorData={sensorData} />
             <ExportButton filter="7d" />
             <HistoryTable />
           </div>
         </div>
 
-        {/* Footer metadata */}
-        <div
-          className="orb-divider"
-          style={{ marginTop: "0.5rem" }}
-        />
+        {/* Footer */}
         <p
-          className="text-center orb-label pb-2"
-          style={{ fontSize: "0.58rem" }}
+          className="text-center sh-label pb-3"
+          style={{ fontSize: "0.6rem" }}
         >
-          ORBITAL COMMAND · IOT ROOM MONITOR · POLNES TRK 6C 2025
+          Home Monitor · IoT Room Monitoring · POLNES TRK 6C 2025
         </p>
       </main>
     </div>
