@@ -28,10 +28,11 @@ interface Stats {
 
 function calcStats(values: number[]): Stats | null {
   if (values.length === 0) return null;
+  const round1 = (n: number) => Math.round(n * 10) / 10;
   return {
-    min: Math.min(...values),
-    max: Math.max(...values),
-    avg: Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10) / 10,
+    min: round1(Math.min(...values)),
+    max: round1(Math.max(...values)),
+    avg: round1(values.reduce((a, b) => a + b, 0) / values.length),
   };
 }
 
