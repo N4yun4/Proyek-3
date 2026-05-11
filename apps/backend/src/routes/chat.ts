@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia";
+import { chatAI } from "../services/openrouter";
 
 const chatRateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
@@ -30,30 +31,16 @@ export const chatRoutes = new Elysia({ prefix: "/api/ai" }).post(
       : "";
 
     const systemPrompt =
-      `Kamu adalah asisten pintar untuk sistem monitoring ruangan IoT. ` +
+      `Kamu adalah asisten pintar untuk sistem monitoring ruangan IoT di Samarinda, Kalimantan Timur. ` +
+      `Konteks iklim lokal: suhu udara luar Samarinda rata-rata 28–35°C sepanjang tahun, ` +
+      `suhu ruangan yang nyaman berkisar 24–30°C, kelembapan normal 65–85%. ` +
+      `Gunakan acuan ini saat menilai apakah kondisi ruangan normal, panas, atau memerlukan tindakan. ` +
       `Jawab pertanyaan tentang kondisi ruangan secara ringkas dan ramah dalam bahasa Indonesia.` +
       sensorInfo;
 
     try {
-      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "inclusionai/ling-2.6-1t:free",
-          messages: [{ role: "system", content: systemPrompt }, ...messages],
-        }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`OpenRouter error ${res.status}: ${text}`);
-      }
-
-      const json = await res.json() as { choices: { message: { content: string } }[] };
-      return { reply: json.choices[0].message.content };
+      const reply = await chatAI(messages, systemPrompt);
+      return { reply };
     } catch {
       set.status = 500;
       return { error: "Chat AI gagal, coba lagi nanti" };

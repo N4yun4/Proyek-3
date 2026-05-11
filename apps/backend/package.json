@@ -1,8 +1,8 @@
 {
   "name": "backend",
   "scripts": {
-    "dev": "bun run --watch src/index.ts",
-    "start": "bun src/index.ts"
+    "dev": "bun --env-file .env --watch src/index.ts",
+    "start": "bun --env-file .env src/index.ts"
   },
   "dependencies": {
     "elysia": "^1.2.0",

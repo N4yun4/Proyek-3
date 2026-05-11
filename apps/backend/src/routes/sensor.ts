@@ -2,6 +2,7 @@ import { Elysia, t } from "elysia";
 import {
   getRealtimeSensor,
   getHistory,
+  getDayReadings,
   subscribeToRealtime,
   type SensorRealtimeData,
 } from "../services/firebase";
@@ -48,6 +49,17 @@ export const sensorRoutes = new Elysia({ prefix: "/api/sensor" })
         from: t.Optional(t.String()),
         to: t.Optional(t.String()),
       }),
+    }
+  )
+  .get(
+    "/readings/:date",
+    async ({ params, set }) => {
+      try {
+        return await getDayReadings(params.date);
+      } catch {
+        set.status = 503;
+        return { error: "Database tidak bisa diakses" };
+      }
     }
   )
   .ws("/live", {

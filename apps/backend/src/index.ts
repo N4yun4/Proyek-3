@@ -1,3 +1,4 @@
+import "./loadEnv"; // HARUS paling pertama — set process.env sebelum Firebase init
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { sensorRoutes } from "./routes/sensor";
@@ -15,3 +16,13 @@ const app = new Elysia()
   .listen(Number(process.env.PORT ?? 3000));
 
 console.log(`Backend running at http://localhost:${app.server?.port}`);
+console.log("Env check:", {
+  FIREBASE_API_KEY: process.env.FIREBASE_API_KEY ? "✓" : "✗ MISSING",
+  FIREBASE_DATABASE_URL: process.env.FIREBASE_DATABASE_URL ? "✓" : "✗ MISSING",
+  NVIDIA_API_KEY: process.env.NVIDIA_API_KEY ? "✓" : "✗ MISSING",
+});
+
+console.log("Registered routes:");
+app.routes.forEach(r => console.log(r.method, r.path));
+
+console.log("Backend fully loaded and watching for changes!");

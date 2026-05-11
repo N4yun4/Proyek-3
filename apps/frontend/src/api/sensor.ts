@@ -1,4 +1,4 @@
-import type { SensorData, HistoryEntry } from "../types/sensor";
+import type { SensorData, HistoryEntry, SensorReading } from "../types/sensor";
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
@@ -15,4 +15,10 @@ export async function fetchHistory(from?: string, to?: string): Promise<HistoryE
   const res = await fetch(`${BASE}/api/sensor/history?${params.toString()}`);
   if (!res.ok) throw new Error("Gagal mengambil riwayat");
   return res.json() as Promise<HistoryEntry[]>;
+}
+
+export async function fetchDayReadings(date: string): Promise<SensorReading[]> {
+  const res = await fetch(`${BASE}/api/sensor/readings/${date}`);
+  if (!res.ok) throw new Error("Gagal mengambil data harian");
+  return res.json() as Promise<SensorReading[]>;
 }

@@ -126,9 +126,8 @@ export function TemperatureChart({ sensorData }: TemperatureChartProps) {
             titleColor: "#9B9691",
             bodyColor: "#1C1B19",
             titleFont: { family: "DM Sans", size: 10 },
-            bodyFont: { family: "DM Sans", size: 13, weight: "600" },
+            bodyFont: { family: "DM Sans", size: 13, weight: 600 },
             padding: 10,
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)" as never,
             callbacks: {
               label: (item) => ` ${item.raw}°C`,
             },

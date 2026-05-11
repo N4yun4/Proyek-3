@@ -1,7 +1,16 @@
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useSensor } from "../context/SensorContext";
 import { sendChatMessage } from "../api/chat";
 import type { ChatMessage } from "../api/chat";
+
+const QUICK_PROMPTS = [
+  "Kondisi ruangan sekarang?",
+  "Apakah suhu normal untuk Samarinda?",
+  "Rekomendasikan pengaturan AC",
+  "Ada potensi masalah hari ini?",
+];
 
 export function ChatPage() {
   const { sensorData } = useSensor();
@@ -10,16 +19,27 @@ export function ChatPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  async function handleSend() {
-    const text = input.trim();
-    if (!text || loading) return;
+  // Auto-resize textarea
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    const lineHeight = 24;
+    const maxHeight = lineHeight * 5 + 20;
+    el.style.height = Math.min(el.scrollHeight, maxHeight) + "px";
+  }, [input]);
 
-    const userMsg: ChatMessage = { role: "user", content: text };
+  async function handleSend(text?: string) {
+    const msg = (text ?? input).trim();
+    if (!msg || loading) return;
+
+    const userMsg: ChatMessage = { role: "user", content: msg };
     const nextMessages = [...messages, userMsg];
     setMessages(nextMessages);
     setInput("");
@@ -54,39 +74,73 @@ export function ChatPage() {
         className="sh-card"
         style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 172px)" }}
       >
-        {/* Card header */}
+        {/* Header */}
         <div
           style={{
-            padding: "1.25rem 1.5rem",
+            padding: "1rem 1.5rem",
             borderBottom: "1px solid var(--border)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
             flexShrink: 0,
           }}
         >
-          <div>
-            <p className="sh-label mb-0.5" style={{ fontSize: "0.6rem" }}>Asisten Ruangan</p>
-            <h2
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: "0.95rem",
-                fontWeight: 600,
-                color: "var(--text)",
-                letterSpacing: "-0.01em",
-                margin: 0,
-              }}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.6rem" }}>
+            <div>
+              <p className="sh-label mb-0.5" style={{ fontSize: "0.6rem" }}>Asisten Ruangan</p>
+              <h2
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "0.95rem",
+                  fontWeight: 600,
+                  color: "var(--text)",
+                  letterSpacing: "-0.01em",
+                  margin: 0,
+                }}
+              >
+                AI Chat
+              </h2>
+            </div>
+            <button
+              onClick={() => { setMessages([]); setError(null); setInput(""); }}
+              className="sh-btn sh-btn-ghost"
+              style={{ fontSize: "0.72rem", padding: "0.3rem 0.75rem" }}
             >
-              AI Chat
-            </h2>
+              Percakapan Baru
+            </button>
           </div>
-          <button
-            onClick={() => { setMessages([]); setError(null); setInput(""); }}
-            className="sh-btn sh-btn-ghost"
-            style={{ fontSize: "0.72rem", padding: "0.3rem 0.75rem" }}
+
+          {/* Sensor bar */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "1rem",
+              fontSize: "0.75rem",
+              fontFamily: "var(--font-body)",
+              color: "var(--text-2)",
+            }}
           >
-            Percakapan Baru
-          </button>
+            {sensorData ? (
+              <>
+                <span style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                  <span
+                    style={{
+                      width: 7,
+                      height: 7,
+                      borderRadius: "50%",
+                      background: "var(--green, #22c55e)",
+                      display: "inline-block",
+                      boxShadow: "0 0 0 2px color-mix(in srgb, var(--green, #22c55e) 25%, transparent)",
+                    }}
+                  />
+                  Live
+                </span>
+                <span>Suhu: <strong style={{ color: "var(--text)" }}>{sensorData.suhu}°C</strong></span>
+                <span>Kelembapan: <strong style={{ color: "var(--text)" }}>{sensorData.kelembapan}%</strong></span>
+                <span>Pengunjung: <strong style={{ color: "var(--text)" }}>{sensorData.orang_hari_ini} orang</strong></span>
+              </>
+            ) : (
+              <span style={{ opacity: 0.5 }}>Data sensor tidak tersedia</span>
+            )}
+          </div>
         </div>
 
         {/* Messages */}
@@ -100,22 +154,54 @@ export function ChatPage() {
             gap: "0.75rem",
           }}
         >
-          {/* Welcome */}
+          {/* Welcome + quick prompts */}
           {messages.length === 0 && !loading && (
-            <div style={{ display: "flex", justifyContent: "flex-start" }}>
-              <div
-                style={{
-                  maxWidth: "75%",
-                  background: "var(--surface-2)",
-                  color: "var(--text)",
-                  borderRadius: "18px 18px 18px 4px",
-                  padding: "0.75rem 1rem",
-                  fontSize: "0.85rem",
-                  fontFamily: "var(--font-body)",
-                  lineHeight: 1.6,
-                }}
-              >
-                Halo! Saya siap membantu menganalisis kondisi ruangan. Tanyakan apa saja.
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <div style={{ display: "flex", justifyContent: "flex-start" }}>
+                <div
+                  style={{
+                    maxWidth: "75%",
+                    background: "var(--surface-2)",
+                    color: "var(--text)",
+                    borderRadius: "18px 18px 18px 4px",
+                    padding: "0.75rem 1rem",
+                    fontSize: "0.85rem",
+                    fontFamily: "var(--font-body)",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  Halo! Saya siap membantu menganalisis kondisi ruangan di Samarinda. Tanyakan apa saja, atau pilih pertanyaan cepat di bawah.
+                </div>
+              </div>
+
+              {/* Quick prompt chips */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", paddingLeft: "0.25rem" }}>
+                {QUICK_PROMPTS.map((prompt) => (
+                  <button
+                    key={prompt}
+                    onClick={() => void handleSend(prompt)}
+                    disabled={loading}
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: "0.78rem",
+                      color: "var(--accent)",
+                      background: "color-mix(in srgb, var(--accent) 10%, transparent)",
+                      border: "1px solid color-mix(in srgb, var(--accent) 30%, transparent)",
+                      borderRadius: "999px",
+                      padding: "0.35rem 0.85rem",
+                      cursor: "pointer",
+                      transition: "background 0.15s ease, border-color 0.15s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "color-mix(in srgb, var(--accent) 18%, transparent)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "color-mix(in srgb, var(--accent) 10%, transparent)";
+                    }}
+                  >
+                    {prompt}
+                  </button>
+                ))}
               </div>
             </div>
           )}
@@ -136,10 +222,17 @@ export function ChatPage() {
                   fontSize: "0.85rem",
                   fontFamily: "var(--font-body)",
                   lineHeight: 1.6,
-                  whiteSpace: "pre-wrap",
                 }}
               >
-                {msg.content}
+                {msg.role === "assistant" ? (
+                  <div className="chat-markdown">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.content}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <span style={{ whiteSpace: "pre-wrap" }}>{msg.content}</span>
+                )}
               </div>
             </div>
           ))}
@@ -207,6 +300,7 @@ export function ChatPage() {
           }}
         >
           <textarea
+            ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -224,8 +318,9 @@ export function ChatPage() {
               padding: "0.65rem 0.9rem",
               resize: "none",
               outline: "none",
-              lineHeight: 1.5,
+              lineHeight: "24px",
               transition: "border-color 0.15s ease",
+              overflow: "hidden",
             }}
             onFocus={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; }}
             onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border-hi)"; }}
